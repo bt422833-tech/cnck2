@@ -1,0 +1,646 @@
+<!DOCTYPE html>  <html lang="vi">    <head>    
+<meta name="viewport" content="width=device-width, initial-scale=1">  
+<meta charset="UTF-8">    
+<title>Trắc nghiệm Công Nghệ+ Đúng Sai( vanducA9 )</title>    
+<style>  
+.flex-row{  
+display:flex;  
+gap:10px;  
+align-items:flex-start;  
+flex-wrap:wrap;  
+}  
+#scorePopup{  
+position:fixed;  
+top:0;  
+left:0;  
+width:100%;  
+height:100%;  
+background:rgba(0,0,0,0.6);  
+display:none;  
+align-items:center;  
+justify-content:center;  
+z-index:999;  
+}  .popupBox{
+background:white;
+padding:30px;
+border-radius:14px;
+text-align:center;
+width:80%;
+max-width:320px;
+animation:pop 0.4s ease;
+}
+
+.popupBox h1{
+font-size:36px;
+color:#2e7d32;
+margin-bottom:10px;
+}
+
+.popupBox p{
+font-size:22px;
+margin-bottom:15px;
+}
+
+.popupBox button{
+padding:12px 20px;
+font-size:18px;
+background:#1e88e5;
+color:white;
+border:none;
+border-radius:8px;
+}
+.question-img{
+  width:220px;
+  max-width:90%;
+  height:auto;
+  border-radius:8px;
+  display:block;
+  margin:10px auto;
+}
+
+@keyframes pop{
+0%{transform:scale(0.5);opacity:0}
+100%{transform:scale(1);opacity:1}
+}
+#result{
+animation:pop 0.5s ease;
+}
+
+@keyframes pop{
+0%{transform:scale(0.6);opacity:0}
+100%{transform:scale(1);opacity:1}
+}
+#result{
+margin-top:20px;
+padding:18px;
+font-size:28px;
+font-weight:bold;
+text-align:center;
+background:linear-gradient(135deg,#4caf50,#2e7d32);
+color:white;
+border-radius:12px;
+box-shadow:0 4px 12px rgba(0,0,0,0.2);
+}
+table{
+margin:6px auto;
+font-size:12px;
+background:white;
+border-collapse:collapse;
+max-width:100%;
+}
+
+table th, table td{
+border:1px solid #666;
+padding:3px 5px;
+text-align:center;
+}
+
+table th{
+background:#a2f2f2;
+font-weight:bold;
+}
+white-space:nowrap;
+}
+
+/* toàn trang */
+body{
+font-family:Arial;
+padding:16px;
+line-height:1.6;
+background:#f3f3f3;
+}
+
+.group-grid{
+display:grid;
+grid-template-columns:1fr;
+gap:16px;
+margin-bottom:24px;
+}
+
+.passage{
+font-weight:bold;
+margin-bottom:10px;
+}
+
+.question-row{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:16px;
+}
+
+.question{
+background:white;
+padding:8px 10px;
+border-radius:10px;
+box-shadow:0 2px 6px rgba(0,0,0,0.08);
+}
+
+.question b{
+display:block;
+white-space:pre-line;
+margin-bottom:3px;
+}
+
+.question label{
+display:block;
+margin:4px 0;
+padding:3px 4px;
+border-radius:6px;
+}
+button{
+width:100%;
+padding:14px;
+font-size:18px;
+margin-top:14px;
+border:none;
+border-radius:10px;
+background:#1e98e5;
+color:white;
+font-weight:bold;
+}
+button:empty{
+display:none;
+}
+
+#redoBtn{
+background:#43a047;
+}
+.correct{
+background:#d4edda;
+color:#155724;
+font-weight:bold;
+}
+
+.wrong{
+background:#f8d7da;
+color:#723c24;
+font-weight:bold;
+}
+#topBtn{
+position:fixed;
+bottom:25px;
+right:20px;
+width:55px;
+height:55px;
+border-radius:50%;
+background:#a2f800;
+color:white;
+font-size:26px;
+border:none;
+display:none;
+cursor:pointer;
+box-shadow:0 4px 12px rgba(0,0,0,0.3);
+transition:0.3s;
+}
+
+#topBtn:hover{
+transform:scale(1.1);
+background:#fb1c00;
+}
+#popupDetail{
+font-size:18px;
+margin-bottom:10px;
+}
+
+#popupBar{
+width:100%;
+height:10px;
+background:#ddd;
+border-radius:6px;
+margin-top:8px;
+}
+
+#popupBarFill{
+height:10px;
+width:0%;
+background:#4caf50;
+border-radius:6px;
+transition:0.3s;
+}
+</style>
+
+</head>    
+<body>  <h2>TRẮC NGHIỆM CÔNG NGHỆ (22câu)</h2>    
+<form id="quiz"></form>  <h2>PHẦN ĐÚNG / SAI</h2>  
+<div id="dsquiz"></div>  <h3 id="result" style="display:none"></h3>  
+<button id="checkBtn" type="button" onclick="submitAll()">  
+CHECK ĐÁP ÁN THÔI!!!  
+</button>  <button id="redoBtn" type="button" onclick="redoQuiz()" style="display:none">  
+LÀM LẠI  
+</button>  <div id="scorePopup">  
+<div class="popupBox">  <h1>🏆 <span id="popupScore">0 / 62</span></h1>  <p id="popupPercent">0% chính xác</p>  <p id="popupDetail"></p>  <div id="popupBar">  
+<div id="popupBarFill"></div>  
+</div>  <button onclick="redoQuiz()">LÀM LẠI</button>
+<button onclick="closePopup()">ĐÓNG</button>
+
+</div>  
+</div>  
+<button id="topBtn" onclick="goTop()">↑</button>  <script>  
+function closePopup(){  
+document.getElementById("scorePopup").style.display="none";  
+}  
+function goTop(){  
+window.scrollTo({  
+top:0,  
+behavior:"smooth"  
+});  
+}  
+  
+// hiện nút khi cuộn xuống  
+window.onscroll=function(){  
+  
+let btn=document.getElementById("topBtn");  
+  
+if(document.documentElement.scrollTop>200){  
+btn.style.display="block";  
+}else{  
+btn.style.display="none";  
+}  
+  
+}  
+let submitted=false;  
+  
+function shuffle(arr){  
+for(let i=arr.length-1;i>0;i--){  
+let j=Math.floor(Math.random()*(i+1));  
+[arr[i],arr[j]]=[arr[j],arr[i]];  
+}  
+}  
+
+  
+    
+let mcq=[
+
+{q:"Câu 1: Tín hiệu số là:",a:[
+"Một chuỗi các tín hiệu rời rạc, có tần số thay đổi trong một khoảng thời gian nhất định",
+"Một chuỗi các tín hiệu rời rạc, có tần số không đổi trong một khoảng thời gian nhất định",
+"Một chuỗi các tín hiệu rời rạc, có biên độ thay đổi trong một khoảng thời gian nhất định",
+"Một chuỗi các tín hiệu rời rạc, có biên độ không đổi trong một khoảng thời gian nhất định"
+],c:3},
+
+{q:"Câu 2: Dữ liệu là tín hiệu nhị phân chỉ gồm hai mức",a:[
+"mức cao (logic 1) hoặc mức thấp (logic 0)",
+"mức cao (logic 0) hoặc mức thấp (logic 1)",
+"mức cao (logic -1) hoặc mức thấp (logic 0)",
+"mức cao (logic -2) hoặc mức thấp (logic 0)"
+],c:0},
+
+{q:"Câu 3: Trong tín hiệu số, bit thường được biểu diễn bằng",a:[
+"Một mức điện áp",
+"Một khoảng thời gian",
+"Một giá trị điện trở",
+"Một chu kì"
+],c:0},
+
+{q:"Câu 4: Tốc độ bit là:",a:[
+"Số bit trên 1 giây",
+"Số bit trên 1 phút",
+"Số bit trên 1 giờ",
+"Số bit trên 10 giây"
+],c:0},
+
+{q:"Câu 5: Điều nào sau đây không phải đặc điểm của tín hiệu số",a:[
+"Dễ bị ảnh hưởng bởi nhiễu",
+"Dễ khôi phục bằng cách sử dụng bộ lặp",
+"Dễ khôi phục bằng cách sử dụng các bộ khuếch đại",
+"Cho phép nhiều người dùng đồng thời"
+],c:0},
+
+{q:"Câu 6: Đâu không phải là ưu điểm của tín hiệu số:",a:[
+"Cho phép nhiều người dùng đồng thời",
+"Có thể nén",
+"Mã hóa và bảo mật tốt hơn tín hiệu tương đương",
+"Không bị lỗi tín hiệu trong quá trình truyền tải"
+],c:3},
+
+{q:"Câu 7: Cổng NOR có thể được thiết lập bằng cách:",a:[
+"Mắc nối tiếp một cổng OR với một cổng AND",
+"Mắc nối tiếp một cổng OR với một cổng NOT",
+"Mắc nối tiếp một cổng AND với một cổng NOT",
+"Mắc nối tiếp một cổng AND với một cổng AND"
+],c:1},
+
+{q:"Câu 8: Cổng NAND có thể được thiết lập bằng cách:",a:[
+"Mắc nối tiếp một cổng OR với một cổng NOR",
+"Mắc nối tiếp một cổng OR với một cổng NOT",
+"Mắc nối tiếp một cổng AND với một cổng NOT",
+"Mắc nối tiếp một cổng AND với một cổng NOR"
+],c:2},
+
+{q:"Câu 9: Các mạch dãy bao gồm mấy thành phần",a:[
+"3",
+"4",
+"5",
+"6"
+],c:2},
+
+{q:"Câu 10: Mạch logic tổ hợp bao gồm:",a:[
+"Các bộ đếm",
+"Các bộ khóa, điều khiển logic",
+"Các bộ ghi dịch",
+"Các bộ chia tần"
+],c:1},
+
+{q:"Câu 11: Các mạch dãy bao gồm",a:[
+"Các phần tử nhớ",
+"Các mạch số học (cộng, trừ...)",
+"Các mạch so sánh",
+"Các bộ hợp kênh, phân kênh"
+],c:0},
+
+{q:"Câu 12: Đâu là ứng dụng của mạch điều khiển tín hiệu về công dụng thông báo những thông tin cần thiết cho con người thực hiện theo lệnh?",a:[
+"Đèn tín hiệu giao thông",
+"Điện áp cao",
+"Máy thu thanh",
+"Biển hiệu quảng cáo"
+],c:0},
+
+{q:"Câu 13: Tại sao trong tín hiệu đèn giao thông cần lắp mạch điều khiển tín hiệu?",a:[
+"Để thông báo tình trạng cháy nổ đến người dùng",
+"Để thông báo những thông tin cần thiết cho con người thực hiện theo hiệu lệnh",
+"Để trang trí",
+"Để tăng điện áp"
+],c:1},
+
+{q:"Câu 14: Vai trò của bộ nhớ trong vi điều khiển:",a:[
+"Đọc dữ liệu từ bên ngoài vào CPU",
+"Chuyển dữ liệu từ CPU ra ngoài",
+"Lưu trữ mọi dữ liệu của vi điều khiển",
+"Ghép nối vi điều khiển với các thiết bị ngoại vi"
+],c:2},
+
+{q:"Câu 15: Vai trò của khối đầu vào và khối đầu ra:",a:[
+"Đọc dữ liệu từ bên ngoài vào CPU",
+"Chuyển dữ liệu từ CPU ra ngoài",
+"Lưu trữ mọi dữ liệu của vi điều khiển",
+"Ghép nối vi điều khiển với các thiết bị ngoại vi"
+],c:3},
+
+{q:"Câu 16: Vai trò của bộ xử lí trung tâm là:",a:[
+"Thực hiện mọi thao tác tính toán và điều khiển",
+"Chuyển dữ liệu từ CPU ra ngoài",
+"Lưu trữ mọi dữ liệu của vi điều khiển",
+"Ghép nối vi điều khiển với các thiết bị ngoại vi"
+],c:0},
+
+{q:"Câu 17: Thành phần nào của máy tính không được thu nhỏ vào vi điều khiển?",a:[
+"Bộ nhớ RAM",
+"Bộ xử lí trung tâm (CPU)",
+"Ổ cứng",
+"Bộ điều khiển ra/vào"
+],c:2},
+
+{q:"Câu 18: Vi điều khiển là một mạch tích hợp (IC) có thể ........ để thực hiện các chức năng ........ và ........ cho một mục đích sử dụng cụ thể",a:[
+"lập trình, điều khiển, tính toán",
+"tính toán, lập trình, điều khiển",
+"lập trình, tính toán, điều khiển",
+"điều khiển, tính toán, lập trình"
+],c:2},
+
+{q:"Câu 19: Bộ phận tiếp nhận dữ liệu vân tay trong khóa thông minh thuộc khối chức năng nào trong cấu tạo của vi điều khiển?",a:[
+"Khối đầu vào",
+"Khối đầu ra",
+"Bộ xử lí trung tâm",
+"Bộ nhớ"
+],c:0},
+
+{q:"Câu 20: Bộ phận xử lí dữ liệu trong khóa thông minh thuộc khối chức năng nào trong cấu tạo của vi điều khiển?",a:[
+"Khối đầu vào",
+"Khối đầu ra",
+"Bộ xử lí trung tâm",
+"Bộ nhớ"
+],c:2},
+
+{q:"Câu 21: Bộ phận tín hiệu ra trong khóa thông minh thuộc khối chức năng nào trong cấu tạo của vi điều khiển?",a:[
+"Khối đầu vào",
+"Khối đầu ra",
+"Bộ xử lí trung tâm",
+"Bộ nhớ"
+],c:1},
+
+{q:"Câu 22: Bộ phận dữ liệu vân tay đã lưu trong khóa thông minh thuộc khối chức năng nào trong cấu tạo của vi điều khiển?",a:[
+"Khối đầu vào",
+"Khối đầu ra",
+"Bộ xử lí trung tâm",
+"Bộ nhớ"
+],c:3}
+
+];
+  
+let quiz = document.getElementById("quiz");  
+let qIndex = mcq.length;  
+shuffle ( mcq);  
+mcq.forEach((x,i)=>{  
+  
+let answers = x.a.map((text,index)=>({text,index}));  
+  
+shuffle(answers);  
+  
+x.shuffledAnswers = answers;  
+  
+quiz.innerHTML += `  
+<div class="question" id="q${i}" data-correct="${answers.findIndex(a=>a.index===x.c)}">  
+<div class="flex-row">  
+  
+<div>  
+<b>${x.q}</b>  
+  
+<div class="result"></div>  
+  
+${answers.map((o,idx)=>`  
+<label>  
+<input type="radio" name="q${i}" value="${idx}">  
+${o.text}  
+</label>  
+`).join("")}  
+  
+</div>  
+  
+${x.image ? `<img src="${x.image}" style="max-width:260px">` : ""}  
+  
+</div>  
+  
+</div>  
+`;  
+});  
+    
+// ---------------- 6 câu đúng sai ----------------    
+let dsq=[
+
+{
+q:"Câu 1: Công logic là thành phần của mạch điện tử số. Nhận định đúng khi nói về cổng logic là:",
+a:[
+"a. Cổng logic thực hiện các phép toán logic chỉ đối với tối đa hai tín hiệu số dạng nhị phân ở đầu vào và chỉ có một đầu ra",
+"b. Các cổng logic cơ bản: cổng NOT, cổng AND, cổng OR, cổng NAND, cổng NOR",
+"c. Trong các cổng logic cơ bản chỉ có cổng NOT thường có hai tín hiệu đầu vào",
+"d. Hoạt động của các cổng logic thường được mô tả dưới dạng các hàm logic và bảng chân lí"
+],
+c:[0,1,0,1]
+},
+
+{
+q:"Câu 2: Nhận định đúng khi nói về mạch dãy",
+a:[
+"a. Là trị số của tín hiệu ra ở thời điểm đang xét chỉ phụ thuộc vào tổ hợp các giá trị đầu vào",
+"b. Chứa các phần tử nhớ, trị số của tín hiệu ra phụ thuộc vào các tín hiệu đầu vào, ra ở thời điểm đang xét và quá khứ",
+"c. Điển hình của mạch dãy là mạch so sánh",
+"d. Có 3 loại phần tử nhớ flip-flop cơ bản trong mạch dãy là JK, D và T"
+],
+c:[0,1,0,1]
+},
+{
+q:"Câu 3: Sơ đồ chức năng của vi điều khiển bao gồm bộ xử lí trung tâm (CPU), đầu vào/đầu ra, bộ nhớ. CPU là bộ phận giữ vai trò then chốt của vi điều khiển và thực hiện các công việc sau:",
+a:[
+"a) Tính toán và xử lí dữ liệu của vi điều khiển",
+"b) Đọc dữ liệu bên ngoài vào CPU và chuyển dữ liệu từ CPU ra ngoài",
+"c) Hiển thị thông tin sử dụng",
+"d) Lưu trữ dữ liệu trong bộ nhớ"
+],
+c:[1,0,0,0]
+}
+
+];
+  
+let dsquiz = document.getElementById("dsquiz");  
+  
+dsq.forEach((block,gi)=>{  
+
+dsquiz.innerHTML += `
+  <div class="question">
+    <b>${block.q}</b>
+    ${block.image ? `<div style="text-align:center;"><img src="${block.image}" style="width:180px;max-width:85%;height:auto;"></div>` : ""}
+`;
+
+block.a.forEach((text,i)=>{  
+
+let id = qIndex;  
+let name = "q"+id;  
+let correct = block.c[i];  
+
+dsquiz.innerHTML += `  
+<div id="q${id}" data-correct="${correct}"   
+style="margin:10px 0;padding:8px;background:#f7f7f7;border-radius:6px">  
+
+<label style="margin-right:10px">  
+<input type="radio" name="${name}" value="1"> Đúng  
+</label>  
+
+<label style="margin-right:10px">  
+<input type="radio" name="${name}" value="0"> Sai  
+</label>  
+
+<span>${text}</span>  
+<div class="result"></div>  
+</div>  
+`;  
+
+qIndex++;  
+
+});  
+
+dsquiz.innerHTML += `</div>`;  
+
+});
+  
+function submitAll(){  
+  
+let correct=0;  
+let wrong=0;  
+let blank=0;  
+let total=qIndex;  
+  
+let resultBoxes=document.querySelectorAll(".result");  
+  
+for(let i=0;i<qIndex;i++){
+
+let radios=document.getElementsByName("q"+i);
+let chosen=null;
+
+let box=document.getElementById("q"+i);
+let correctValue=box.dataset.correct;
+
+let correctText="";
+let chosenText="";
+
+for(let j=0;j<radios.length;j++){
+
+let r=radios[j];
+let label=r.parentElement;
+
+if(r.value==correctValue){
+correctText=label.innerText;
+label.classList.add("correct");
+}
+
+if(r.checked){
+chosen=r;
+chosenText=label.innerText;
+}
+
+}
+
+if(!chosen){
+
+blank++;
+
+resultBoxes[i].innerHTML=
+"Bạn chọn: <span style='color:red;font-weight:bold'>Chưa chọn ❌</span> - Đáp án: <span style='color:green;font-weight:bold'>"+correctText+"</span>";
+
+}
+
+else if(chosen.value==correctValue){
+
+correct++;
+
+resultBoxes[i].innerHTML=
+"Bạn chọn: <span style='color:green;font-weight:bold'>"+chosenText+" ✔</span>";
+
+}
+
+else{
+
+wrong++;
+
+chosen.parentElement.classList.add("wrong");
+
+resultBoxes[i].innerHTML=
+"Bạn chọn: <span style='color:red;font-weight:bold'>"+chosenText+" ❌</span> - Đáp án: <span style='color:green;font-weight:bold'>"+correctText+"</span>";
+
+}
+
+}
+  
+let percent=Math.round((correct/total)*100);  
+  
+document.getElementById("popupScore").innerHTML =  
+correct+" / "+total;  
+  
+document.getElementById("popupDetail").innerHTML =  
+"✅ Đúng: "+correct+  
+" | ❌ Sai: "+wrong+  
+" | ⚪ Chưa làm: "+blank;  
+  
+document.getElementById("popupPercent").innerHTML =  
+percent+"% chính xác";  
+  
+document.getElementById("scorePopup").style.display="flex";  
+  
+document.getElementById("result").innerHTML =  
+"🏆 Điểm: "+correct+" / "+total;  
+  
+document.getElementById("result").style.display="block";  
+  
+document.getElementById("redoBtn").style.display="block";  
+document.getElementById("checkBtn").style.display="none";  
+  
+document.getElementById("popupBarFill").style.width =  
+percent+"%";  
+  
+}  
+  
+  
+function redoQuiz(){  
+location.reload();  
+}  
+</script>    </body>    
+</html>   
